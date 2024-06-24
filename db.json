@@ -1,0 +1,68 @@
+{
+  "projects": [
+    {
+      "id": "1",
+      "name": "ernestogo",
+      "budget": 5,
+      "categoria": {
+        "id": "4",
+        "name": "planejamento"
+      },
+      "cost": 0,
+      "services": []
+    },
+    {
+      "id": "2",
+      "name": "ernesto dalva de medeiros",
+      "budget": 1234,
+      "categoria": {
+        "id": "3",
+        "name": "design"
+      },
+      "cost": 142,
+      "services": [
+        {
+          "name": "testando",
+          "cost": "140",
+          "description": "teste",
+          "id": "513153f9-3257-41f2-8f17-ec429731d279"
+        },
+        {
+          "name": "po",
+          "cost": "2",
+          "description": "contratar",
+          "id": "e5d863f3-6249-40ae-8a01-47ca60267ebf"
+        }
+      ]
+    },
+    {
+      "id": "111111115",
+      "name": "projeto atualizado2",
+      "budget": 5800095500,
+      "categoria": {
+        "id": "4",
+        "name": "planejamento"
+      },
+      "cost": 0,
+      "services": []
+    }
+  ],
+  "categories": [
+    {
+      "id": "1",
+      "name": "infra"
+    },
+    {
+      "id": "2",
+      "name": "desenvolvimento"
+    },
+    {
+      "id": "3",
+      "name": "design"
+    },
+    {
+      "id": "4",
+      "name": "planejamento"
+    }
+  ]
+}
