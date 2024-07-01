@@ -1,238 +1,156 @@
 import { Box, Button, Typography } from "@mui/material";
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import Loading from "../components/loading";
-import Projectform from "../project/projectform";
-import Message from "../components/message";
-import Serviceform from "../service/serviceform";
-import { v4 as uuidv4 } from "uuid";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import Input from "../form/input";
+import { useState } from "react";
+import Selectt from "./select";
 
-const Project = () => {
-  const { id } = useParams();
-  const [project, setProject] = useState(null);
-  const [showProjectForm, setShowProjectForm] = useState(false);
-  const [message, setMessage] = useState("");
-  const [showServiceForm, setShowServiceForm] = useState(false);
+const Projectform = ({ handlesubmit, btntext, projectdata }) => {
+  const theme = createTheme({
+    components: {
+      MuiFormControl: {
+        styleOverrides: {
+          root: {
+            "& label.Mui-focused": {
+              color: "#ffbb33",
+            },
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: "#ccc",
+              },
+              "&:hover fieldset": {
+                borderColor: "#ffbb33",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "#ffbb33",
+              },
+            },
+          },
+        },
+      },
+    },
+  });
 
-  const toggleServiceForm = () => {
-    setShowServiceForm(!showServiceForm);
-  };
-
-  const toggleProjectForm = () => {
-    setShowProjectForm(!showProjectForm);
-  };
-
-  const createservice = (updatedProject) => {
-    setMessage("");
-    const lastService =
-      updatedProject.services[updatedProject.services.length - 1];
-    lastService.id = uuidv4();
-    const newCost =
-      parseFloat(updatedProject.cost) + parseFloat(lastService.cost);
-    if (newCost > parseFloat(updatedProject.budget)) {
-      setMessage("Orçamento ultrapassado, verifique o valor do serviço");
-      updatedProject.services.pop();
-      return false;
+  const [project, setproject] = useState(
+    projectdata || {
+      name: "",
+      budget: "",
+      categoria: { id: "1", name: "infra" }, // Garantir que o ID seja uma string
     }
+  );
+  const [categoria, setcategoria] = useState(project.categoria.id);
 
-    updatedProject.cost = newCost;
-    axios
-      .patch(`http://localhost:3001/projects/${id}`, updatedProject)
-      .then((response) => {
-        setProject(response.data);
-        setShowServiceForm(false);
-        setMessage("Serviço adicionado com sucesso.");
-        console.log(response.data);
-      })
-      .catch((error) => console.log(error));
-  };
+  const categoryOptions = [
+    { value: "1", label: "infra" },
+    { value: "2", label: "desenvolvimento" },
+    { value: "3", label: "design" },
+    { value: "4", label: "planejamento" },
+  ];
 
-  const editpost = (project) => {
-    setMessage("");
-    if (project.budget < project.cost) {
-      setMessage("O orçamento não pode ser menor que o custo.");
-      return false;
+  const handleCategoryChange = (event) => {
+    const selectedCategoryId = event.target.value;
+    const selectedCategoryLabel = categoryOptions.find(
+      (option) => option.value === selectedCategoryId
+    )?.label;
+
+    if (selectedCategoryLabel) {
+      setcategoria(selectedCategoryId);
+      setproject({
+        ...project,
+        categoria: {
+          id: selectedCategoryId, // Manter como string
+          name: selectedCategoryLabel,
+        },
+      });
     }
-    axios
-      .put(`http://localhost:3001/projects/${id}`, project)
-      .then((response) => {
-        setProject(response.data);
-        setShowProjectForm(false);
-        setMessage("Projeto atualizado.");
-      })
-      .catch((error) => console.log(error));
   };
 
-  useEffect(() => {
-    setTimeout(() => {
-      axios
-        .get(`http://localhost:3001/projects/${id}`)
-        .then((response) => setProject(response.data))
-        .catch((error) => console.log(error));
-    }, 300);
-  }, [id]);
+  const handlechange = (e) => {
+    setproject({ ...project, [e.target.name]: e.target.value });
+  };
+
+  const generateId = () => {
+    const lastId = localStorage.getItem("lastId") || "0";
+    const newId = (Number(lastId) + 1).toString(); // Certificar que o ID seja uma string
+    localStorage.setItem("lastId", newId);
+    return newId;
+  };
+
+  const submit = (e) => {
+    e.preventDefault();
+    const newProject = {
+      ...project,
+      id: generateId(),
+      categoria: project.categoria || { id: "1", name: "infra" }, // Garantir que o ID seja uma string
+    };
+    newProject.budget = Number(newProject.budget);
+    console.log("Projeto enviado para o backend:", newProject);
+    handlesubmit(newProject);
+  };
 
   return (
-    <>
-      {project ? (
-        <Box
-          sx={{
-            minHeight: "100vh",
-            padding: "2em",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-start",
-          }}
-        >
-          {message && <Message msg={message} />}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: "1.2em",
-            }}
+    <ThemeProvider theme={theme}>
+      <Box sx={{ maxWidth: "600px", mx: "auto", mt: 2 }}>
+        <Box component="form" onSubmit={submit}>
+          <Typography
+            sx={{ fontWeight: "bold" }}
+            component="label"
+            variant="h6"
           >
-            <Typography
-              sx={{
-                mb: "0.5em",
-                backgroundColor: "#222",
-                color: "#ffbb33",
-                padding: "1.4em",
-                fontSize: "1.25rem",
-                flexShrink: 0,
-              }}
-              variant="h5"
-            >
-              Projeto: {project.name}
-            </Typography>
+            Nome do projeto:
+          </Typography>
+          <Input
+            type="text"
+            text="Insira o nome do projeto"
+            name="name"
+            fullWidth
+            sx={{ mb: 2 }}
+            handleonchange={handlechange}
+            value={project.name || ""}
+          />
+          <Typography
+            sx={{ fontWeight: "bold" }}
+            component="label"
+            variant="h6"
+          >
+            Orçamento do projeto:
+          </Typography>
+          <Input
+            type="number"
+            text="Insira o orçamento total"
+            name="budget"
+            handleonchange={handlechange}
+            fullWidth
+            sx={{ mb: 2 }}
+            value={project.budget || ""}
+          />
+          <Typography
+            sx={{ fontWeight: "bold", mt: 2 }}
+            component="label"
+            variant="h6"
+          >
+            Categoria:
+          </Typography>
+          <Selectt
+            sx={{ mt: 1 }}
+            text="Categoria"
+            name="categoria"
+            options={categoryOptions}
+            handleonchange={handleCategoryChange}
+            value={categoria}
+          />
+          <Box align="center" sx={{ mt: 2 }}>
             <Button
-              sx={{
-                backgroundColor: "black",
-                color: "#ffbb33",
-                mb: 2,
-                padding: "0.5em 1em",
-                fontSize: "0.875rem",
-                minWidth: "auto",
-                flexShrink: 0,
-              }}
-              onClick={toggleProjectForm}
+              sx={{ backgroundColor: "black", color: "#ffbb33", mb: 2 }}
+              type="submit"
+              color="primary"
             >
-              {!showProjectForm ? "Editar projeto" : "Fechar"}
+              {btntext || "Criar projeto"}
             </Button>
           </Box>
-
-          <Box
-            sx={{
-              borderBottom: "1px solid #7a7a7a",
-              paddingBottom: "1.2em",
-              mb: "1.2em",
-            }}
-          >
-            {!showProjectForm ? (
-              <Box>
-                <Typography sx={{ mb: "0.5em" }}>
-                  <Typography
-                    sx={{ fontWeight: "bold" }}
-                    component="span"
-                    variant="span"
-                  >
-                    Categoria:{" "}
-                  </Typography>
-                  {project.categoria.name}
-                </Typography>
-                <Typography sx={{ mb: "0.5em" }}>
-                  <Typography
-                    sx={{ fontWeight: "bold" }}
-                    component="span"
-                    variant="span"
-                  >
-                    Total de orçamento:{" "}
-                  </Typography>
-                  R$ {project.budget}
-                </Typography>
-                <Typography sx={{ mb: "0.5em" }}>
-                  <Typography
-                    sx={{ fontWeight: "bold" }}
-                    component="span"
-                    variant="span"
-                  >
-                    Total utilizado:{" "}
-                  </Typography>
-                  R$ {project.cost}
-                </Typography>
-              </Box>
-            ) : (
-              <Box>
-                <Projectform
-                  btntext="Concluir edição"
-                  projectdata={project}
-                  handlesubmit={editpost}
-                />
-              </Box>
-            )}
-          </Box>
-
-          {!showProjectForm && (
-            <>
-              <Box
-                sx={{
-                  borderBottom: "1px solid #7a7a7a",
-                  mb: "1.2em",
-                  paddingBottom: "1.2em",
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography sx={{ fontWeight: "bold" }} variant="h6">
-                    Adicione um serviço
-                  </Typography>
-                  <Button
-                    sx={{
-                      backgroundColor: "black",
-                      color: "#ffbb33",
-                      mb: 2,
-                      padding: "0.5em 1em",
-                      fontSize: "0.875rem",
-                      minWidth: "auto",
-                      flexShrink: 0,
-                    }}
-                    onClick={toggleServiceForm}
-                  >
-                    {!showServiceForm ? "Adicionar serviço" : "Fechar"}
-                  </Button>
-                </Box>
-                {showServiceForm && (
-                  <Box sx={{ mt: 2 }}>
-                    <Serviceform
-                      handlesubmit={createservice}
-                      projectdata={project}
-                    />
-                  </Box>
-                )}
-              </Box>
-              <Typography sx={{ fontWeight: "bold" }} variant="h6">
-                Serviços
-              </Typography>
-              <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
-                <p>Itens de serviços</p>
-              </Box>
-            </>
-          )}
         </Box>
-      ) : (
-        <Box sx={{ height: "31.8rem" }}>
-          <Loading />
-        </Box>
-      )}
-    </>
+      </Box>
+    </ThemeProvider>
   );
 };
 
-export default Project;
+export default Projectform;

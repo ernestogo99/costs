@@ -5,7 +5,7 @@ import { Delete as Deleteicon } from "@mui/icons-material";
 const Servicecard = ({ id, name, cost, description, handleremove }) => {
   const remove = (event) => {
     event.preventDefault();
-    handleremove(id);
+    handleremove(id, cost);
   };
 
   return (

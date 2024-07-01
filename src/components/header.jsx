@@ -35,40 +35,6 @@ const Header = () => {
               <Typography
                 component={Link}
                 variant="h5"
-                to="/contact"
-                sx={{
-                  textDecoration: "none",
-                  color: "white",
-                  fontFamily: "monospace",
-                  fontWeight: 800,
-                  fontSize: "1rem",
-                  "&:hover": {
-                    color: "#ffbb33",
-                  },
-                }}
-              >
-                Contato
-              </Typography>
-              <Typography
-                component={Link}
-                variant="h5"
-                to="/company"
-                sx={{
-                  textDecoration: "none",
-                  color: "white",
-                  fontFamily: "monospace",
-                  fontWeight: 800,
-                  fontSize: "1rem",
-                  "&:hover": {
-                    color: "#ffbb33",
-                  },
-                }}
-              >
-                Empresa
-              </Typography>
-              <Typography
-                component={Link}
-                variant="h5"
                 to="/projects"
                 sx={{
                   textDecoration: "none",

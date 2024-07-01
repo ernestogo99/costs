@@ -25,6 +25,26 @@ const Project = () => {
     setShowProjectForm(!showProjectForm);
   };
 
+  const removeservice = (serviceId, serviceCost) => {
+    const updatedServices = project.services.filter(
+      (service) => service.id !== serviceId
+    );
+    const updatedProject = {
+      ...project,
+      services: updatedServices,
+      cost: parseFloat(project.cost) - parseFloat(serviceCost),
+    };
+
+    axios
+      .put(`http://localhost:3001/projects/${project.id}`, updatedProject)
+      .then((response) => {
+        setProject(response.data);
+        setservices(response.data.services);
+        setMessage("Serviço removido com sucesso");
+      })
+      .catch((error) => console.log(error));
+  };
+
   const createservice = (updatedProject) => {
     const lastService =
       updatedProject.services[updatedProject.services.length - 1];
@@ -39,7 +59,7 @@ const Project = () => {
 
     updatedProject.cost = newCost;
     axios
-      .put(` http://localhost:3001/projects/${id}, updatedProject`)
+      .put(`http://localhost:3001/projects/${id}`, updatedProject)
       .then((response) => {
         setProject(response.data);
         setservices(response.data.services);
@@ -56,7 +76,7 @@ const Project = () => {
       return false;
     }
     axios
-      .put(`http://localhost:3001/projects/${id}, project`)
+      .put(`http://localhost:3001/projects/${id}`, project)
       .then((response) => {
         setProject(response.data);
         setShowProjectForm(false);
@@ -64,8 +84,6 @@ const Project = () => {
       })
       .catch((error) => console.log(error));
   };
-
-  const removeservice = () => {};
 
   useEffect(() => {
     setTimeout(() => {
